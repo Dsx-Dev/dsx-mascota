@@ -11,11 +11,11 @@
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
-  "contributes": {
+ "contributes": {
     "commands": [
       {
-        "command": "dsx-mascota.helloWorld",
-        "title": "Hello World"
+        "command": "dsx-mascota.start",
+        "title": "Iniciar Compañero DSX"
       }
     ]
   },
