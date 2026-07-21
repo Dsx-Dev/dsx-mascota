@@ -36,25 +36,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = activate;
 exports.deactivate = deactivate;
 const vscode = __importStar(require("vscode"));
-// Esta función se ejecuta una sola vez cuando VS Code activa tu extensión
+const path = __importStar(require("path"));
 function activate(context) {
-    // Registramos la acción para el comando que configuramos en el package.json 
     let disposable = vscode.commands.registerCommand('dsx-mascota.start', () => {
-        // Creamos y abrimos un nuevo panel (Webview) al lado de tu código [cite: 17]
-        const panel = vscode.window.createWebviewPanel('dsxMascota', // Identificador interno del panel [cite: 17]
-        'Compañero DSX 🐬', // Título que verá el usuario en la pestaña [cite: 17]
-        vscode.ViewColumn.Two, // Indica que se abra en la columna derecha [cite: 17]
-        {
-            enableScripts: true, // Permite ejecutar Javascript dentro del Webview (crucial para animaciones) [cite: 17]
-            retainContextWhenHidden: true // Mantiene viva a la mascota si cambias de pestaña o archivo [cite: 17]
+        const panel = vscode.window.createWebviewPanel('dsxMascota', 'Compañero DSX 🐬', vscode.ViewColumn.Two, {
+            enableScripts: true,
+            retainContextWhenHidden: true,
+            localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'media'))]
         });
-        // Cargamos el diseño web donde flotará el delfín [cite: 17]
-        panel.webview.html = getWebviewContent();
+        const mediaPath = path.join(context.extensionPath, 'media');
+        const dolphinGifUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(mediaPath, 'dsx_idle.gif')));
+        panel.webview.html = getWebviewContent(dolphinGifUri);
     });
     context.subscriptions.push(disposable);
 }
-// Esta función devuelve el HTML/CSS básico que se renderizará en la pestaña
-function getWebviewContent() {
+function getWebviewContent(dolphinUri) {
     return `<!DOCTYPE html>
     <html lang="es">
     <head>
@@ -67,34 +63,28 @@ function getWebviewContent() {
                 align-items: center;
                 height: 100vh;
                 margin: 0;
-                background-color: #1e1e24; /* Un fondo oscuro que combina con VS Code */
-                color: #ffffff;
-                font-family: sans-serif;
+                background-color: #1e1e24;
                 overflow: hidden;
+                font-family: sans-serif;
+                color: white;
             }
-            .dolphin {
-                font-size: 80px;
-                animation: swim 2.5s ease-in-out infinite;
+            .dolphin-container {
+                max-width: 250px;
+                height: auto;
             }
-            h1 {
-                font-size: 1.5rem;
-                margin-top: 15px;
-                letter-spacing: 1px;
-            }
-            @keyframes swim {
-                0% { transform: translateY(0px) rotate(0deg); }
-                50% { transform: translateY(-15px) rotate(5deg); }
-                100% { transform: translateY(0px) rotate(0deg); }
+            img {
+                width: 100%;
+                height: auto;
             }
         </style>
     </head>
     <body>
-        <div class="dolphin">🐬</div>
-        <h1>¡Hola, soy DSX!</h1>
-        <p>Próximamente: cargando tus ilustraciones animadas...</p>
+        <div class="dolphin-container">
+            <img src="${dolphinUri}" alt="DSX El Delfín">
+        </div>
+        <h3>DSX listo para acompañarte...</h3>
     </body>
     </html>`;
 }
-// Función que se ejecuta si la extensión se desactiva de memoria
 function deactivate() { }
 //# sourceMappingURL=extension.js.map
